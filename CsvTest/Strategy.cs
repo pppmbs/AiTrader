@@ -10,10 +10,10 @@ namespace AiTrader
         static void Main(string[] args)
         {
             // Write sample data to CSV file
-            CsvFileWriter writer = new CsvFileWriter("WriteTest.csv");
+            CsvFileWriter writer = new CsvFileWriter("ESTest.csv");
 
             // Read sample data from CSV file
-            using (CsvFileReader reader = new CsvFileReader(Directory.GetCurrentDirectory() + "\\table.csv"))
+            using (CsvFileReader reader = new CsvFileReader(Directory.GetCurrentDirectory() + "\\ES.csv"))
             {
                 CsvRow row = new CsvRow();
                 while (reader.ReadRow(row))
