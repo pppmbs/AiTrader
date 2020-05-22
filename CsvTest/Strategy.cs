@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace CsvTest
+namespace AiTrader
 {
-    class Program
+    class Strategy
     {
         static void Main(string[] args)
         {
