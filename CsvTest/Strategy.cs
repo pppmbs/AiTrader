@@ -12,6 +12,7 @@ namespace AiTrader
     static class Constants
     {
         public const int TickCount = 2000; // 2000 ticks per bar
+        public const int barsLookAhear = 5; // look ahead 5 bars
     }
 
     class Strategy
@@ -110,6 +111,25 @@ namespace AiTrader
 
         }
 
+        static public void buildLookAhead5Bars(List<BarRecord> barRecords)
+        {
+            BarRecord[] barRecordArry = barRecords.ToArray();
+            int index = 0;
+            foreach(BarRecord bar in barRecords)
+            {
+                bar.NEXT_BAR1 = barRecordArry[index+1].HIGH_PRICE;
+                bar.NEXT_BAR2 = barRecordArry[index+2].HIGH_PRICE;
+                bar.NEXT_BAR3 = barRecordArry[index+3].HIGH_PRICE;
+                bar.NEXT_BAR4 = barRecordArry[index+4].HIGH_PRICE;
+                bar.NEXT_BAR5 = barRecordArry[index+5].HIGH_PRICE;
+                index++;
+                if (index == (barRecordArry.Length - Constants.barsLookAhear))
+                {
+                    break;
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
             using (var sr = new StreamReader(@"ES.csv"))
@@ -128,6 +148,9 @@ namespace AiTrader
 
                     //Calculate indicators values
                     buildIndicators(barRecords);
+
+                    //provide the lookahead bars
+                    buildLookAhead5Bars(barRecords);
 
                     //Write the entire contents of the CSV file into another
                     //Do not use WriteHeader as WriteRecords will have done that already.
