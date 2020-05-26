@@ -1,176 +1,88 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace AiTrader
 {
+    public class BarRecord
+    {
+        public string START_TIME { get; set; }
+        public string END_TIME { get; set; }
+        public string OPEN_PRICE { get; set; }
+        public string CLOSE_PRICE { get; set; }
+        public string HIGH_PRICE { get; set; }
+        public string LOW_PRICE { get; set; }
+        public string TOTAL_VOLUME { get; set; }
+    }
+
+
     class Strategy
     {
+        static public void buildBarRecords(IEnumerable records, List<BarRecord> barRecords)
+        {
+            int tickCount = 0;
+            int volCount = 0;
+            BarRecord bar = new BarRecord();
+            foreach (DataRecord record in records)
+            {
+                if (tickCount == 0)
+                {
+                    bar.START_TIME = String.Copy(record.Time);
+                    bar.OPEN_PRICE = String.Copy(record.Last);
+                    bar.HIGH_PRICE = String.Copy(record.Last);
+                    bar.LOW_PRICE = String.Copy(record.Last);
+                }
+
+                if (tickCount == 2000)
+                {
+                    bar.END_TIME = String.Copy(record.Time);
+                    bar.CLOSE_PRICE = String.Copy(record.Last);
+                    bar.TOTAL_VOLUME = volCount.ToString();
+                    tickCount = 0;
+                    volCount = 0;
+
+                    barRecords.Add(bar);
+                    bar = new BarRecord();
+                    continue;
+                }
+                double last = Convert.ToDouble(record.Last);
+                double low = Convert.ToDouble(bar.LOW_PRICE);
+                double high = Convert.ToDouble(bar.HIGH_PRICE);
+                if (last < low)
+                    bar.LOW_PRICE = String.Copy(record.Last);
+                if (last > high)
+                    bar.HIGH_PRICE = String.Copy(record.Last);
+
+                volCount += Int32.Parse(record.Volume);
+                tickCount++;
+            }
+        }
+
         static void Main(string[] args)
         {
-            // Write sample data to CSV file
-            CsvFileWriter writer = new CsvFileWriter("ESTest.csv");
-
-            // Read sample data from CSV file
-            using (CsvFileReader reader = new CsvFileReader(Directory.GetCurrentDirectory() + "\\ES.csv"))
+            using (var sr = new StreamReader(@"ES.csv"))
             {
-                CsvRow row = new CsvRow();
-                while (reader.ReadRow(row))
+                using (var sw = new StreamWriter(@"ES-Bar.csv"))
                 {
-                    /*
-                    foreach (string s in row)
-                    {
-                        Console.Write(s);
-                        Console.Write(" ");
-                    }
-                    Console.WriteLine();
-                    */
-                    writer.WriteRow(row);
+                    var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
+                    var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
+
+                    //CSVReader will now read the whole file into an enumerable
+                    IEnumerable records = reader.GetRecords<DataRecord>().ToList();
+
+                    List<BarRecord> barRecords = new List<BarRecord>();
+                    buildBarRecords(records, barRecords);
+
+                    //Write the entire contents of the CSV file into another
+                    //Do not use WriteHeader as WriteRecords will have done that already.
+                    writer.WriteRecords(barRecords);
+                    writer.Flush();
                 }
-            }
-            writer.Close();
-        }
-
-        /// <summary>
-        /// Class to store one CSV row
-        /// </summary>
-        public class CsvRow : List<string>
-        {
-            public string LineText { get; set; }
-        }
-
-        /// <summary>
-        /// Class to write data to a CSV file
-        /// </summary>
-        public class CsvFileWriter : System.IO.StreamWriter
-        {
-            public CsvFileWriter(Stream stream)
-                : base(stream)
-            {
-            }
-
-            public CsvFileWriter(string filename)
-                : base(filename)
-            {
-            }
-
-            /// <summary>
-            /// Writes a single row to a CSV file.
-            /// </summary>
-            /// <param name="row">The row to be written</param>
-            public void WriteRow(CsvRow row)
-            {
-                System.Text.StringBuilder builder = new StringBuilder();
-                bool firstColumn = true;
-                foreach (string value in row)
-                {
-                    // Add separator if this isn't the first value
-                    if (!firstColumn)
-                        builder.Append(',');
-                    // Implement special handling for values that contain comma or quote
-                    // Enclose in quotes and double up any double quotes
-                    if (value.IndexOfAny(new char[] { '"', ',' }) != -1)
-                        builder.AppendFormat("\"{0}\"", value.Replace("\"", "\"\""));
-                    else
-                        builder.Append(value);
-                    firstColumn = false;
-                }
-                row.LineText = builder.ToString();
-                WriteLine(row.LineText);
-            }
-        }
-
-        /// <summary>
-        /// Class to read data from a CSV file
-        /// </summary>
-        public class CsvFileReader : StreamReader
-        {
-            public CsvFileReader(Stream stream)
-                : base(stream)
-            {
-            }
-
-            public CsvFileReader(string filename)
-                : base(filename)
-            {
-            }
-
-            /// <summary>
-            /// Reads a row of data from a CSV file
-            /// </summary>
-            /// <param name="row"></param>
-            /// <returns></returns>
-            public bool ReadRow(CsvRow row)
-            {
-                row.LineText = ReadLine();
-                if (String.IsNullOrEmpty(row.LineText))
-                    return false;
-
-                int pos = 0;
-                int rows = 0;
-
-                while (pos < row.LineText.Length)
-                {
-                    string value;
-
-                    // Special handling for quoted field
-                    if (row.LineText[pos] == '"')
-                    {
-                        // Skip initial quote
-                        pos++;
-
-                        // Parse quoted value
-                        int start = pos;
-                        while (pos < row.LineText.Length)
-                        {
-                            // Test for quote character
-                            if (row.LineText[pos] == '"')
-                            {
-                                // Found one
-                                pos++;
-
-                                // If two quotes together, keep one
-                                // Otherwise, indicates end of value
-                                if (pos >= row.LineText.Length || row.LineText[pos] != '"')
-                                {
-                                    pos--;
-                                    break;
-                                }
-                            }
-                            pos++;
-                        }
-                        value = row.LineText.Substring(start, pos - start);
-                        value = value.Replace("\"\"", "\"");
-                    }
-                    else
-                    {
-                        // Parse unquoted value
-                        int start = pos;
-                        while (pos < row.LineText.Length && row.LineText[pos] != ',')
-                            pos++;
-                        value = row.LineText.Substring(start, pos - start);
-                    }
-
-                    // Add field to list
-                    if (rows < row.Count)
-                        row[rows] = value;
-                    else
-                        row.Add(value);
-                    rows++;
-
-                    // Eat up to and including next comma
-                    while (pos < row.LineText.Length && row.LineText[pos] != ',')
-                        pos++;
-                    if (pos < row.LineText.Length)
-                        pos++;
-                }
-                // Delete any unused items
-                while (row.Count > rows)
-                    row.RemoveAt(rows);
-
-                // Return true if any columns read
-                return (row.Count > 0);
             }
         }
     }
