@@ -9,8 +9,10 @@ using System.Text;
 
 namespace AiTrader
 {
-
-
+    static class Constants
+    {
+        public const int TickCount = 2000; // 2000 ticks per bar
+    }
 
     class Strategy
     {
@@ -29,7 +31,7 @@ namespace AiTrader
                     bar.LOW_PRICE = String.Copy(record.Last);
                 }
 
-                if (tickCount == 2000)
+                if (tickCount == Constants.TickCount)
                 {
                     bar.END_TIME = String.Copy(record.Time);
                     bar.CLOSE_PRICE = String.Copy(record.Last);
