@@ -1,0 +1,5 @@
+Hence our training data will look like this:
+
+IP: START_TIME, END_TIME, OPEN_PRICE, CLOSE_PRICE, HIGH_PRICE, LOW_PRICE, TOTAL_VOLUME, SMA9, SMA20, SMA50, MACD Difference, RSI, Bollinger Bands Lower,  
+Bollinger Bands Upper, CCI, 
+and OP: Bar+1(+/-),  Bar+2(+/-), Bar+3(+/-), Bar+4(+/-), Bar+5(+/-)

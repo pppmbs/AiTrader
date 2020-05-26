@@ -9,16 +9,7 @@ using System.Text;
 
 namespace AiTrader
 {
-    public class BarRecord
-    {
-        public string START_TIME { get; set; }
-        public string END_TIME { get; set; }
-        public string OPEN_PRICE { get; set; }
-        public string CLOSE_PRICE { get; set; }
-        public string HIGH_PRICE { get; set; }
-        public string LOW_PRICE { get; set; }
-        public string TOTAL_VOLUME { get; set; }
-    }
+
 
 
     class Strategy
@@ -63,6 +54,60 @@ namespace AiTrader
             }
         }
 
+        static public void buildIndicators(List<BarRecord> barRecords)
+        {
+            SMA sma9 = new SMA(9);
+            sma9.LoadOhlcList(barRecords);
+            SingleDoubleSerie sma9Serie = sma9.Calculate();
+            double?[] sma9Arry = sma9Serie.Values.ToArray();
+
+            SMA sma20 = new SMA(20);
+            sma20.LoadOhlcList(barRecords);
+            SingleDoubleSerie sma20Serie = sma20.Calculate();
+            double?[] sma20Arry = sma20Serie.Values.ToArray();
+
+            SMA sma50 = new SMA(50);
+            sma50.LoadOhlcList(barRecords);
+            SingleDoubleSerie sma50Serie = sma50.Calculate();
+            double?[] sma50Arry = sma50Serie.Values.ToArray();
+
+            MACD macd = new MACD(true);
+            macd.LoadOhlcList(barRecords);
+            MACDSerie macdSerie = macd.Calculate();
+            double?[] macdHistArry = macdSerie.MACDHistogram.ToArray();
+
+            RSI rsi = new RSI(14);
+            rsi.LoadOhlcList(barRecords);
+            RSISerie rsiSerie = rsi.Calculate();
+            double?[] rsiArry = rsiSerie.RSI.ToArray();
+
+            BollingerBand bollingerBand = new BollingerBand();
+            bollingerBand.LoadOhlcList(barRecords);
+            BollingerBandSerie bollingerSerie = bollingerBand.Calculate();
+            double?[] bollLowArry = bollingerSerie.LowerBand.ToArray();
+            double?[] bollUpArry = bollingerSerie.UpperBand.ToArray();
+
+            CCI cci = new CCI();
+            cci.LoadOhlcList(barRecords);
+            SingleDoubleSerie cciSerie = cci.Calculate();
+            double?[] cciArry = cciSerie.Values.ToArray();
+
+            int index = 0;
+            foreach (BarRecord bar in barRecords)
+            {
+                bar.SMA9 = sma9Arry[index].ToString();
+                bar.SMA20 = sma20Arry[index].ToString();
+                bar.SMA50 = sma50Arry[index].ToString();
+                bar.MACD_DIFF = macdHistArry[index].ToString();
+                bar.RSI = rsiArry[index].ToString();
+                bar.BOLL_LOW = bollLowArry[index].ToString();
+                bar.BOLL_HIGH = bollUpArry[index].ToString();
+                bar.CCI = cciArry[index].ToString();
+                index++;
+            }
+
+        }
+
         static void Main(string[] args)
         {
             using (var sr = new StreamReader(@"ES.csv"))
@@ -75,8 +120,12 @@ namespace AiTrader
                     //CSVReader will now read the whole file into an enumerable
                     IEnumerable records = reader.GetRecords<DataRecord>().ToList();
 
+                    //Covert ticks into bar records
                     List<BarRecord> barRecords = new List<BarRecord>();
                     buildBarRecords(records, barRecords);
+
+                    //Calculate indicators values
+                    buildIndicators(barRecords);
 
                     //Write the entire contents of the CSV file into another
                     //Do not use WriteHeader as WriteRecords will have done that already.

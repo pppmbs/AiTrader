@@ -11,6 +11,22 @@ namespace AiTrader
     {
         protected abstract List<Ohlc> OhlcList { get; set; }
 
+        public virtual void LoadOhlcList(List<BarRecord> barRecords)
+        {
+            OhlcList = new List<Ohlc>();
+            foreach (BarRecord bar in barRecords)
+            {
+                Ohlc ohlc = new Ohlc();
+                ohlc.Open = Convert.ToDouble(bar.OPEN_PRICE);
+                ohlc.Close = Convert.ToDouble(bar.CLOSE_PRICE);
+                ohlc.Low = Convert.ToDouble(bar.LOW_PRICE);
+                ohlc.High = Convert.ToDouble(bar.HIGH_PRICE);
+                ohlc.Volume = Convert.ToDouble(bar.TOTAL_VOLUME);
+
+                OhlcList.Add(ohlc);
+            }
+        }
+
         public virtual void Load(string path)
         {
             using (CsvReader csv = new CsvReader(new StreamReader(path), true))
@@ -25,6 +41,25 @@ namespace AiTrader
                     {
                         switch (headers[i])
                         {
+                            case "START_TIME":
+                                break;
+                            case "END_TIME":
+                                break;
+                            case "OPEN_PRICE":
+                                ohlc.Open = double.Parse(csv[i], CultureInfo.InvariantCulture);
+                                break;
+                            case "CLOSE_PRICE":
+                                ohlc.Close = double.Parse(csv[i], CultureInfo.InvariantCulture);
+                                break;
+                            case "HIGH_PRICE":
+                                ohlc.High = double.Parse(csv[i], CultureInfo.InvariantCulture);
+                                break;
+                            case "LOW_PRICE":
+                                ohlc.Low = double.Parse(csv[i], CultureInfo.InvariantCulture);
+                                break;
+                            case "TOTAL_VOLUME":
+                                ohlc.Volume = int.Parse(csv[i]);
+                                break;
                             case "Date":
                                 ohlc.Date = new DateTime(Int32.Parse(csv[i].Substring(0, 4)), Int32.Parse(csv[i].Substring(5, 2)), Int32.Parse(csv[i].Substring(8, 2)));
                                 break;
