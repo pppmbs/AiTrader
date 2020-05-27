@@ -111,22 +111,89 @@ namespace AiTrader
 
         }
 
+        // pad the indicator values that are "" with known values
+        static public void padIndicators(List<BarRecord> barRecords)
+        {
+            barRecords.Reverse();
+            double lastSMA9 = Convert.ToDouble(barRecords.First().SMA9);
+            double lastSM20 = Convert.ToDouble(barRecords.First().SMA20);
+            double lastSM50 = Convert.ToDouble(barRecords.First().SMA50);
+            double lastMACD = Convert.ToDouble(barRecords.First().MACD_DIFF);
+            double lastRSI = Convert.ToDouble(barRecords.First().RSI);
+            double lastBollLow = Convert.ToDouble(barRecords.First().BOLL_LOW);
+            double lastBollHigh = Convert.ToDouble(barRecords.First().BOLL_HIGH);
+            double lastCCI = Convert.ToDouble(barRecords.First().CCI);
+
+            foreach (BarRecord bar in barRecords)
+            {
+                if (string.IsNullOrEmpty(bar.SMA9))
+                    bar.SMA9 = lastSMA9.ToString();
+                else
+                    lastSMA9 = Convert.ToDouble(bar.SMA9);
+
+                if (string.IsNullOrEmpty(bar.SMA20))
+                    bar.SMA20 = lastSM20.ToString();
+                else
+                    lastSM20 = Convert.ToDouble(bar.SMA20);
+
+                if (string.IsNullOrEmpty(bar.SMA50))
+                    bar.SMA50 = lastSM50.ToString();
+                else
+                    lastSM50 = Convert.ToDouble(bar.SMA50);
+
+                if (string.IsNullOrEmpty(bar.MACD_DIFF))
+                    bar.MACD_DIFF = lastMACD.ToString();
+                else
+                    lastMACD = Convert.ToDouble(bar.MACD_DIFF);
+
+                if (string.IsNullOrEmpty(bar.RSI))
+                    bar.RSI = lastRSI.ToString();
+                else
+                    lastRSI = Convert.ToDouble(bar.RSI);
+
+                if (string.IsNullOrEmpty(bar.BOLL_HIGH))
+                    bar.BOLL_HIGH = lastBollHigh.ToString();
+                else
+                    lastBollHigh = Convert.ToDouble(bar.BOLL_HIGH);
+
+                if (string.IsNullOrEmpty(bar.BOLL_LOW))
+                    bar.BOLL_LOW = lastBollLow.ToString();
+                else
+                    lastBollLow = Convert.ToDouble(bar.BOLL_LOW);
+
+                if (string.IsNullOrEmpty(bar.CCI))
+                    bar.CCI = lastCCI.ToString();
+                else
+                    lastCCI = Convert.ToDouble(bar.CCI);
+            }
+            barRecords.Reverse();
+        }
+
         static public void buildLookAhead5Bars(List<BarRecord> barRecords)
         {
             BarRecord[] barRecordArry = barRecords.ToArray();
             int index = 0;
-            foreach(BarRecord bar in barRecords)
+            double lastHighPrice = 0.0;
+            foreach (BarRecord bar in barRecords)
             {
-                bar.NEXT_BAR1 = barRecordArry[index+1].HIGH_PRICE;
-                bar.NEXT_BAR2 = barRecordArry[index+2].HIGH_PRICE;
-                bar.NEXT_BAR3 = barRecordArry[index+3].HIGH_PRICE;
-                bar.NEXT_BAR4 = barRecordArry[index+4].HIGH_PRICE;
-                bar.NEXT_BAR5 = barRecordArry[index+5].HIGH_PRICE;
-                index++;
-                if (index == (barRecordArry.Length - Constants.barsLookAhear))
+                 if ((index + Constants.barsLookAhear) >= barRecordArry.Length)
                 {
-                    break;
+                    bar.NEXT_BAR1 = lastHighPrice.ToString();
+                    bar.NEXT_BAR2 = lastHighPrice.ToString();
+                    bar.NEXT_BAR3 = lastHighPrice.ToString();
+                    bar.NEXT_BAR4 = lastHighPrice.ToString();
+                    bar.NEXT_BAR5 = lastHighPrice.ToString();
                 }
+                else
+                {
+                    bar.NEXT_BAR1 = barRecordArry[index + 1].HIGH_PRICE;
+                    bar.NEXT_BAR2 = barRecordArry[index + 2].HIGH_PRICE;
+                    bar.NEXT_BAR3 = barRecordArry[index + 3].HIGH_PRICE;
+                    bar.NEXT_BAR4 = barRecordArry[index + 4].HIGH_PRICE;
+                    bar.NEXT_BAR5 = barRecordArry[index + 5].HIGH_PRICE;
+                    lastHighPrice = Convert.ToDouble(bar.NEXT_BAR5);
+                }
+                index++;
             }
         }
 
@@ -148,6 +215,9 @@ namespace AiTrader
 
                     //Calculate indicators values
                     buildIndicators(barRecords);
+
+                    //pad the unkown indicators values with known values
+                    padIndicators(barRecords);
 
                     //provide the lookahead bars
                     buildLookAhead5Bars(barRecords);
