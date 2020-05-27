@@ -213,9 +213,20 @@ namespace AiTrader
 
         static void Main(string[] args)
         {
-            using (var sr = new StreamReader(@"ES.csv"))
+            string inputfile;
+            string outputfile;
+
+            // To check the length of  
+            // Command line arguments   
+            if (args.Length == 0)
             {
-                using (var sw = new StreamWriter(@"ES-Bar.csv"))
+                Console.WriteLine("AiTrade inputfile outputfile");
+                Environment.Exit(0);
+            }
+
+            using (var sr = new StreamReader(args[0]))
+            {
+                using (var sw = new StreamWriter(args[1]))
                 {
                     var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
                     var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AiTrader": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\pppmb\\source\\repos\\AiTrader\\CsvTest\\bin\\x64\\Debug\\netcoreapp3.1\\AiTrader.exe",
+      "commandLineArgs": "ES.csv ES-out.csv",
+      "workingDirectory": "C:\\Users\\pppmb\\source\\repos\\AiTrader"
+    }
+  }
+}
