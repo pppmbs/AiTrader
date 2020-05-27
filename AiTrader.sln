@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrader", "CsvTest\AiTrade
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{714E302D-F858-48AE-8D76-6F98B7A2311A}"
 	ProjectSection(SolutionItems) = preProject
-		table.csv = table.csv
+		ES.csv = ES.csv
 	EndProjectSection
 EndProject
 Global

@@ -174,24 +174,38 @@ namespace AiTrader
             BarRecord[] barRecordArry = barRecords.ToArray();
             int index = 0;
             double lastHighPrice = 0.0;
+            double lastLowPrice = 0.0;
             foreach (BarRecord bar in barRecords)
             {
                  if ((index + Constants.barsLookAhear) >= barRecordArry.Length)
                 {
-                    bar.NEXT_BAR1 = lastHighPrice.ToString();
-                    bar.NEXT_BAR2 = lastHighPrice.ToString();
-                    bar.NEXT_BAR3 = lastHighPrice.ToString();
-                    bar.NEXT_BAR4 = lastHighPrice.ToString();
-                    bar.NEXT_BAR5 = lastHighPrice.ToString();
+                    bar.NEXT_HIGH_BAR1 = lastHighPrice.ToString();
+                    bar.NEXT_HIGH_BAR2 = lastHighPrice.ToString();
+                    bar.NEXT_HIGH_BAR3 = lastHighPrice.ToString();
+                    bar.NEXT_HIGH_BAR4 = lastHighPrice.ToString();
+                    bar.NEXT_HIGH_BAR5 = lastHighPrice.ToString();
+                    bar.NEXT_LOW_BAR1 = lastLowPrice.ToString();
+                    bar.NEXT_LOW_BAR2 = lastLowPrice.ToString();
+                    bar.NEXT_LOW_BAR3 = lastLowPrice.ToString();
+                    bar.NEXT_LOW_BAR4 = lastLowPrice.ToString();
+                    bar.NEXT_LOW_BAR5 = lastLowPrice.ToString();
+
                 }
                 else
                 {
-                    bar.NEXT_BAR1 = barRecordArry[index + 1].HIGH_PRICE;
-                    bar.NEXT_BAR2 = barRecordArry[index + 2].HIGH_PRICE;
-                    bar.NEXT_BAR3 = barRecordArry[index + 3].HIGH_PRICE;
-                    bar.NEXT_BAR4 = barRecordArry[index + 4].HIGH_PRICE;
-                    bar.NEXT_BAR5 = barRecordArry[index + 5].HIGH_PRICE;
-                    lastHighPrice = Convert.ToDouble(bar.NEXT_BAR5);
+                    bar.NEXT_HIGH_BAR1 = barRecordArry[index + 1].HIGH_PRICE;
+                    bar.NEXT_HIGH_BAR2 = barRecordArry[index + 2].HIGH_PRICE;
+                    bar.NEXT_HIGH_BAR3 = barRecordArry[index + 3].HIGH_PRICE;
+                    bar.NEXT_HIGH_BAR4 = barRecordArry[index + 4].HIGH_PRICE;
+                    bar.NEXT_HIGH_BAR5 = barRecordArry[index + 5].HIGH_PRICE;
+                    bar.NEXT_LOW_BAR1 = barRecordArry[index + 1].LOW_PRICE;
+                    bar.NEXT_LOW_BAR2 = barRecordArry[index + 2].LOW_PRICE;
+                    bar.NEXT_LOW_BAR3 = barRecordArry[index + 3].LOW_PRICE;
+                    bar.NEXT_LOW_BAR4 = barRecordArry[index + 4].LOW_PRICE;
+                    bar.NEXT_LOW_BAR5 = barRecordArry[index + 5].LOW_PRICE;
+                    lastHighPrice = Convert.ToDouble(bar.NEXT_HIGH_BAR5);
+                    lastLowPrice = Convert.ToDouble(bar.NEXT_LOW_BAR5);
+
                 }
                 index++;
             }
