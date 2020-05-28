@@ -26,16 +26,16 @@ namespace AiTrader
             {
                 if (tickCount == 0)
                 {
-                    bar.START_TIME = String.Copy(record.Time);
-                    bar.OPEN_PRICE = String.Copy(record.Last);
-                    bar.HIGH_PRICE = String.Copy(record.Last);
-                    bar.LOW_PRICE = String.Copy(record.Last);
+                    bar.START_TIME = Convert.ToDouble(record.Time).ToString();
+                    bar.OPEN_PRICE = Convert.ToDouble(record.Last).ToString();
+                    bar.HIGH_PRICE = Convert.ToDouble(record.Last).ToString();
+                    bar.LOW_PRICE = Convert.ToDouble(record.Last).ToString();
                 }
 
                 if (tickCount == Constants.TickCount)
                 {
-                    bar.END_TIME = String.Copy(record.Time);
-                    bar.CLOSE_PRICE = String.Copy(record.Last);
+                    bar.END_TIME = Convert.ToDouble(record.Time).ToString();
+                    bar.CLOSE_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.TOTAL_VOLUME = volCount.ToString();
                     tickCount = 0;
                     volCount = 0;
@@ -48,9 +48,9 @@ namespace AiTrader
                 double low = Convert.ToDouble(bar.LOW_PRICE);
                 double high = Convert.ToDouble(bar.HIGH_PRICE);
                 if (last < low)
-                    bar.LOW_PRICE = String.Copy(record.Last);
+                    bar.LOW_PRICE = Convert.ToDouble(record.Last).ToString();
                 if (last > high)
-                    bar.HIGH_PRICE = String.Copy(record.Last);
+                    bar.HIGH_PRICE = Convert.ToDouble(record.Last).ToString();
 
                 volCount += Int32.Parse(record.Volume);
                 tickCount++;
@@ -173,38 +173,38 @@ namespace AiTrader
         {
             BarRecord[] barRecordArry = barRecords.ToArray();
             int index = 0;
-            double lastHighPrice = 0.0;
-            double lastLowPrice = 0.0;
+            double lastClosePrice = 0.0;
+            double lastOpenPrice = 0.0;
             foreach (BarRecord bar in barRecords)
             {
                  if ((index + Constants.barsLookAhear) >= barRecordArry.Length)
                 {
-                    bar.NEXT_HIGH_BAR1 = lastHighPrice.ToString();
-                    bar.NEXT_HIGH_BAR2 = lastHighPrice.ToString();
-                    bar.NEXT_HIGH_BAR3 = lastHighPrice.ToString();
-                    bar.NEXT_HIGH_BAR4 = lastHighPrice.ToString();
-                    bar.NEXT_HIGH_BAR5 = lastHighPrice.ToString();
-                    bar.NEXT_LOW_BAR1 = lastLowPrice.ToString();
-                    bar.NEXT_LOW_BAR2 = lastLowPrice.ToString();
-                    bar.NEXT_LOW_BAR3 = lastLowPrice.ToString();
-                    bar.NEXT_LOW_BAR4 = lastLowPrice.ToString();
-                    bar.NEXT_LOW_BAR5 = lastLowPrice.ToString();
+                    bar.NEXT_CLOSE_BAR1 = lastClosePrice.ToString();
+                    bar.NEXT_CLOSE_BAR2 = lastClosePrice.ToString();
+                    bar.NEXT_CLOSE_BAR3 = lastClosePrice.ToString();
+                    bar.NEXT_CLOSE_BAR4 = lastClosePrice.ToString();
+                    bar.NEXT_CLOSE_BAR5 = lastClosePrice.ToString();
+                    bar.NEXT_OPEN_BAR1 = lastOpenPrice.ToString();
+                    bar.NEXT_OPEN_BAR2 = lastOpenPrice.ToString();
+                    bar.NEXT_OPEN_BAR3 = lastOpenPrice.ToString();
+                    bar.NEXT_OPEN_BAR4 = lastOpenPrice.ToString();
+                    bar.NEXT_OPEN_BAR5 = lastOpenPrice.ToString();
 
                 }
                 else
                 {
-                    bar.NEXT_HIGH_BAR1 = barRecordArry[index + 1].HIGH_PRICE;
-                    bar.NEXT_HIGH_BAR2 = barRecordArry[index + 2].HIGH_PRICE;
-                    bar.NEXT_HIGH_BAR3 = barRecordArry[index + 3].HIGH_PRICE;
-                    bar.NEXT_HIGH_BAR4 = barRecordArry[index + 4].HIGH_PRICE;
-                    bar.NEXT_HIGH_BAR5 = barRecordArry[index + 5].HIGH_PRICE;
-                    bar.NEXT_LOW_BAR1 = barRecordArry[index + 1].LOW_PRICE;
-                    bar.NEXT_LOW_BAR2 = barRecordArry[index + 2].LOW_PRICE;
-                    bar.NEXT_LOW_BAR3 = barRecordArry[index + 3].LOW_PRICE;
-                    bar.NEXT_LOW_BAR4 = barRecordArry[index + 4].LOW_PRICE;
-                    bar.NEXT_LOW_BAR5 = barRecordArry[index + 5].LOW_PRICE;
-                    lastHighPrice = Convert.ToDouble(bar.NEXT_HIGH_BAR5);
-                    lastLowPrice = Convert.ToDouble(bar.NEXT_LOW_BAR5);
+                    bar.NEXT_CLOSE_BAR1 = barRecordArry[index + 1].CLOSE_PRICE;
+                    bar.NEXT_CLOSE_BAR2 = barRecordArry[index + 2].CLOSE_PRICE;
+                    bar.NEXT_CLOSE_BAR3 = barRecordArry[index + 3].CLOSE_PRICE;
+                    bar.NEXT_CLOSE_BAR4 = barRecordArry[index + 4].CLOSE_PRICE;
+                    bar.NEXT_CLOSE_BAR5 = barRecordArry[index + 5].CLOSE_PRICE;
+                    bar.NEXT_OPEN_BAR1 = barRecordArry[index + 1].OPEN_PRICE;
+                    bar.NEXT_OPEN_BAR2 = barRecordArry[index + 2].OPEN_PRICE;
+                    bar.NEXT_OPEN_BAR3 = barRecordArry[index + 3].OPEN_PRICE;
+                    bar.NEXT_OPEN_BAR4 = barRecordArry[index + 4].OPEN_PRICE;
+                    bar.NEXT_OPEN_BAR5 = barRecordArry[index + 5].OPEN_PRICE;
+                    lastClosePrice = Convert.ToDouble(bar.NEXT_CLOSE_BAR5);
+                    lastOpenPrice = Convert.ToDouble(bar.NEXT_OPEN_BAR5);
 
                 }
                 index++;
@@ -213,9 +213,6 @@ namespace AiTrader
 
         static void Main(string[] args)
         {
-            string inputfile;
-            string outputfile;
-
             // To check the length of  
             // Command line arguments   
             if (args.Length == 0)

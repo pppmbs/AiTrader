@@ -21,15 +21,15 @@ namespace AiTrader
         public string BOLL_LOW { get; set; }
         public string BOLL_HIGH { get; set; }
         public string CCI { get; set; }
-        public string NEXT_LOW_BAR1 { get; set; }
-        public string NEXT_HIGH_BAR1 { get; set; }
-        public string NEXT_LOW_BAR2 { get; set; }
-        public string NEXT_HIGH_BAR2 { get; set; }
-        public string NEXT_LOW_BAR3 { get; set; }
-        public string NEXT_HIGH_BAR3 { get; set; }
-        public string NEXT_LOW_BAR4 { get; set; }
-        public string NEXT_HIGH_BAR4 { get; set; }
-        public string NEXT_LOW_BAR5 { get; set; }
-        public string NEXT_HIGH_BAR5 { get; set; }
+        public string NEXT_OPEN_BAR1 { get; set; }
+        public string NEXT_CLOSE_BAR1 { get; set; }
+        public string NEXT_OPEN_BAR2 { get; set; }
+        public string NEXT_CLOSE_BAR2 { get; set; }
+        public string NEXT_OPEN_BAR3 { get; set; }
+        public string NEXT_CLOSE_BAR3 { get; set; }
+        public string NEXT_OPEN_BAR4 { get; set; }
+        public string NEXT_CLOSE_BAR4 { get; set; }
+        public string NEXT_OPEN_BAR5 { get; set; }
+        public string NEXT_CLOSE_BAR5 { get; set; }
     }
 }
