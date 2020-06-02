@@ -13,6 +13,7 @@ namespace AiTrader
     {
         public const int TickCount = 2000; // 2000 ticks per bar
         public const int barsLookAhear = 5; // look ahead 5 bars
+        public const int minBarRecords = 50; //anything less will be meaningless
     }
 
     class Strategy
@@ -177,7 +178,7 @@ namespace AiTrader
             double lastOpenPrice = 0.0;
             foreach (BarRecord bar in barRecords)
             {
-                 if ((index + Constants.barsLookAhear) >= barRecordArry.Length)
+                if ((index + Constants.barsLookAhear) >= barRecordArry.Length)
                 {
                     bar.NEXT_CLOSE_BAR1 = lastClosePrice.ToString();
                     bar.NEXT_CLOSE_BAR2 = lastClosePrice.ToString();
@@ -211,43 +212,96 @@ namespace AiTrader
             }
         }
 
+        static public List<String> SplitESFileIntoDailyDataFiles(String esFile)
+        {
+            List<String> dailyDataFiles = new List<string>();
+            int index = 0;
+
+            using (var sr = new StreamReader(esFile))
+            {
+                var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
+
+                //CSVReader will now read the entire es file into an enumerable
+                IEnumerable records = reader.GetRecords<DataRecord>().ToList();
+
+                List<DataRecord> listDataRecords = new List<DataRecord>();
+
+                String sameStartDate = "";
+                bool firstRecord = true;
+                foreach (DataRecord record in records)
+                {
+                    if (firstRecord || record.Date.Contains(sameStartDate))
+                    {
+                        sameStartDate = record.Date;
+                        firstRecord = false;
+
+                        listDataRecords.Add(record);
+                    }
+                    else
+                    {
+                        String outputFileName = Path.GetFileNameWithoutExtension(esFile) + sameStartDate + ".csv";
+                        using (var sw = new StreamWriter(outputFileName))
+                        {
+                            var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
+                            writer.WriteRecords(listDataRecords);
+                            writer.Flush();
+                            listDataRecords = new List<DataRecord>();
+                        }
+
+                        sameStartDate = record.Date;
+                        dailyDataFiles.Add(outputFileName);
+                    }
+                }
+            }
+            return dailyDataFiles;
+        }
+
         static void Main(string[] args)
         {
             // To check the length of  
             // Command line arguments   
             if (args.Length == 0)
             {
-                Console.WriteLine("AiTrade inputfile outputfile");
+                Console.WriteLine("AiTrade inputfile");
                 Environment.Exit(0);
             }
 
-            using (var sr = new StreamReader(args[0]))
+            List<String> dailyDataFiles = SplitESFileIntoDailyDataFiles(args[0]);
+            IEnumerable inFiles = dailyDataFiles;
+            foreach (String inFile in inFiles)
             {
-                using (var sw = new StreamWriter(args[1]))
+                using (var sr = new StreamReader(inFile))
                 {
-                    var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
-                    var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
+                    String outFile = Path.GetFileNameWithoutExtension(inFile) + "-bar.csv";
+                    using (var sw = new StreamWriter(outFile))
+                    {
+                        var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
+                        var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
 
-                    //CSVReader will now read the whole file into an enumerable
-                    IEnumerable records = reader.GetRecords<DataRecord>().ToList();
+                        //CSVReader will now read the whole file into an enumerable
+                        IEnumerable records = reader.GetRecords<DataRecord>().ToList();
 
-                    //Covert ticks into bar records
-                    List<BarRecord> barRecords = new List<BarRecord>();
-                    buildBarRecords(records, barRecords);
+                        //Covert ticks into bar records
+                        List<BarRecord> barRecords = new List<BarRecord>();
+                        buildBarRecords(records, barRecords);
 
-                    //Calculate indicators values
-                    buildIndicators(barRecords);
+                        if (barRecords.Count() < Constants.minBarRecords)
+                            continue;
 
-                    //pad the unkown indicators values with known values
-                    padIndicators(barRecords);
+                        //Calculate indicators values
+                        buildIndicators(barRecords);
 
-                    //provide the lookahead bars
-                    buildLookAhead5Bars(barRecords);
+                        //pad the unkown indicators values with known values
+                        padIndicators(barRecords);
 
-                    //Write the entire contents of the CSV file into another
-                    //Do not use WriteHeader as WriteRecords will have done that already.
-                    writer.WriteRecords(barRecords);
-                    writer.Flush();
+                        //provide the lookahead bars
+                        buildLookAhead5Bars(barRecords);
+
+                        //Write the entire contents of the CSV file into another
+                        //Do not use WriteHeader as WriteRecords will have done that already.
+                        writer.WriteRecords(barRecords);
+                        writer.Flush();
+                    }
                 }
             }
         }
