@@ -3,8 +3,8 @@
     "AiTrader": {
       "commandName": "Executable",
       "executablePath": "C:\\Users\\pppmb\\source\\repos\\AiTrader\\CsvTest\\bin\\x64\\Debug\\netcoreapp3.1\\AiTrader.exe",
-      "commandLineArgs": "ES03-16.Last.csv",
-      "workingDirectory": "C:\\Users\\pppmb\\Bill Document\\NinjaTrader Historical Data"
+      "commandLineArgs": "ES12-15.Last.txt.001.csv ES12-15.Last.txt.002.csv ES12-15.Last.txt.003.csv ES12-15.Last.txt.004.csv ES12-15.Last.txt.005.csv ES12-15.Last.txt.006.csv ES12-15.Last.txt.007.csv ES12-15.Last.txt.008.csv ES12-15.Last.txt.009.csv ES12-15.Last.txt.010.csv ES12-15.Last.txt.011.csv ES12-15.Last.txt.012.csv ES12-15.Last.txt.013.csv ES12-15.Last.txt.014.csv ES12-15.Last.txt.015.csv ES12-15.Last.txt.016.csv",
+      "workingDirectory": "C:\\Users\\pppmb\\Bill Document\\NinjaTrader Historical Data\\2015"
     }
   }
 }

@@ -215,7 +215,7 @@ namespace AiTrader
         static public List<String> SplitESFileIntoDailyDataFiles(String esFile)
         {
             List<String> dailyDataFiles = new List<string>();
-            int index = 0;
+            string outputFileName;
 
             using (var sr = new StreamReader(esFile))
             {
@@ -226,32 +226,43 @@ namespace AiTrader
 
                 List<DataRecord> listDataRecords = new List<DataRecord>();
 
-                String sameStartDate = "";
-                bool firstRecord = true;
+                String startDate = "";
+                bool startNewRecord = true;
                 foreach (DataRecord record in records)
                 {
-                    if (firstRecord || record.Date.Contains(sameStartDate))
+                    if (startNewRecord || record.Date.Contains(startDate))
                     {
-                        sameStartDate = record.Date;
-                        firstRecord = false;
+                        if (startNewRecord)
+                        {
+                            listDataRecords = new List<DataRecord>();
+                            startNewRecord = false;
+                            startDate = record.Date;
+                        }
 
                         listDataRecords.Add(record);
                     }
                     else
                     {
-                        String outputFileName = Path.GetFileNameWithoutExtension(esFile) + sameStartDate + ".csv";
+                        outputFileName = Path.GetFileNameWithoutExtension(esFile) + "-" + startDate + ".csv";
                         using (var sw = new StreamWriter(outputFileName))
                         {
                             var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
                             writer.WriteRecords(listDataRecords);
                             writer.Flush();
-                            listDataRecords = new List<DataRecord>();
                         }
-
-                        sameStartDate = record.Date;
                         dailyDataFiles.Add(outputFileName);
+                        startNewRecord = true;
                     }
                 }
+                // flush last record
+                outputFileName = Path.GetFileNameWithoutExtension(esFile) + "-" + startDate + ".csv";
+                using (var sw = new StreamWriter(outputFileName))
+                {
+                    var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
+                    writer.WriteRecords(listDataRecords);
+                    writer.Flush();
+                }
+                dailyDataFiles.Add(outputFileName);
             }
             return dailyDataFiles;
         }
@@ -266,41 +277,44 @@ namespace AiTrader
                 Environment.Exit(0);
             }
 
-            List<String> dailyDataFiles = SplitESFileIntoDailyDataFiles(args[0]);
-            IEnumerable inFiles = dailyDataFiles;
-            foreach (String inFile in inFiles)
+            foreach (string inESFile in args)
             {
-                using (var sr = new StreamReader(inFile))
+                List<String> dailyDataFiles = SplitESFileIntoDailyDataFiles(inESFile);
+                IEnumerable inFiles = dailyDataFiles;
+                foreach (String inFile in inFiles)
                 {
-                    String outFile = Path.GetFileNameWithoutExtension(inFile) + "-bar.csv";
-                    using (var sw = new StreamWriter(outFile))
+                    using (var sr = new StreamReader(inFile))
                     {
-                        var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
-                        var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
+                        String outFile = Path.GetFileNameWithoutExtension(inFile) + "-bar.csv";
+                        using (var sw = new StreamWriter(outFile))
+                        {
+                            var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
+                            var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
 
-                        //CSVReader will now read the whole file into an enumerable
-                        IEnumerable records = reader.GetRecords<DataRecord>().ToList();
+                            //CSVReader will now read the whole file into an enumerable
+                            IEnumerable records = reader.GetRecords<DataRecord>().ToList();
 
-                        //Covert ticks into bar records
-                        List<BarRecord> barRecords = new List<BarRecord>();
-                        buildBarRecords(records, barRecords);
+                            //Covert ticks into bar records
+                            List<BarRecord> barRecords = new List<BarRecord>();
+                            buildBarRecords(records, barRecords);
 
-                        if (barRecords.Count() < Constants.minBarRecords)
-                            continue;
+                            if (barRecords.Count() < Constants.minBarRecords)
+                                continue;
 
-                        //Calculate indicators values
-                        buildIndicators(barRecords);
+                            //Calculate indicators values
+                            buildIndicators(barRecords);
 
-                        //pad the unkown indicators values with known values
-                        padIndicators(barRecords);
+                            //pad the unkown indicators values with known values
+                            padIndicators(barRecords);
 
-                        //provide the lookahead bars
-                        buildLookAhead5Bars(barRecords);
+                            //provide the lookahead bars
+                            buildLookAhead5Bars(barRecords);
 
-                        //Write the entire contents of the CSV file into another
-                        //Do not use WriteHeader as WriteRecords will have done that already.
-                        writer.WriteRecords(barRecords);
-                        writer.Flush();
+                            //Write the entire contents of the CSV file into another
+                            //Do not use WriteHeader as WriteRecords will have done that already.
+                            writer.WriteRecords(barRecords);
+                            writer.Flush();
+                        }
                     }
                 }
             }
