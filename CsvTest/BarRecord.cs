@@ -26,6 +26,7 @@ namespace AiTrader
         public string Momemtum { get; set; }
         public string ADX_DIPositive { get; set; }
         public string ADX_DINegative { get; set; }
+        public string VROC { get; set; }
         public string NEXT_OPEN_BAR1 { get; set; }
         public string NEXT_CLOSE_BAR1 { get; set; }
         public string NEXT_OPEN_BAR2 { get; set; }

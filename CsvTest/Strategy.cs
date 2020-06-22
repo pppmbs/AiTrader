@@ -11,7 +11,7 @@ namespace AiTrader
 {
     static class Constants
     {
-        public const int TickCount = 2000; // 2000 ticks per bar
+        public const int TickCount = 500; // 2000 ticks per bar
         public const int barsLookAhear = 5; // look ahead 5 bars
         public const int minBarRecords = 50; //anything less will be meaningless
     }
@@ -113,6 +113,11 @@ namespace AiTrader
             SingleDoubleSerie moSerie = mo.Calculate();
             double?[] moArry = moSerie.Values.ToArray();
 
+            VROC vroc = new VROC(25);
+            vroc.LoadOhlcList(barRecords);
+            SingleDoubleSerie vrocSerie = vroc.Calculate();
+            double?[] vrocArry = vrocSerie.Values.ToArray();
+
             int index = 0;
             foreach (BarRecord bar in barRecords)
             {
@@ -129,9 +134,9 @@ namespace AiTrader
                 bar.ATR_TrueHigh = atrHighArry[index].ToString();
                 bar.ATR_TrueLow = atrLowArry[index].ToString();
                 bar.Momemtum = moArry[index].ToString();
+                bar.VROC = vrocArry[index].ToString();
                 index++;
             }
-
         }
 
         // pad the indicator values that are "" with known values
@@ -151,6 +156,7 @@ namespace AiTrader
             double lastADXPositive = Convert.ToDouble(barRecords.First().ADX_DIPositive);
             double lastADXNegative = Convert.ToDouble(barRecords.First().ADX_DINegative);
             double lastMomentum = Convert.ToDouble(barRecords.First().Momemtum);
+            double lastVROC = Convert.ToDouble(barRecords.First().VROC);
 
             foreach (BarRecord bar in barRecords)
             {
@@ -218,6 +224,11 @@ namespace AiTrader
                     bar.Momemtum = lastMomentum.ToString();
                 else
                     lastMomentum = Convert.ToDouble(bar.Momemtum);
+
+                if (string.IsNullOrEmpty(bar.VROC))
+                    bar.VROC = lastVROC.ToString();
+                else
+                    lastVROC = Convert.ToDouble(bar.VROC);
             }
             barRecords.Reverse();
         }
@@ -337,7 +348,7 @@ namespace AiTrader
                 {
                     using (var sr = new StreamReader(inFile))
                     {
-                        String outFile = Path.GetFileNameWithoutExtension(inFile) + "-bar.csv";
+                        String outFile = "2000-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-2000-bar.csv";
                         using (var sw = new StreamWriter(outFile))
                         {
                             var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
