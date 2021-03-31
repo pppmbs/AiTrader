@@ -131,12 +131,12 @@ namespace AiTrader
                 bar.BOLL_LOW = bollLowArry[index].ToString();
                 bar.BOLL_HIGH = bollUpArry[index].ToString();
                 bar.CCI = cciArry[index].ToString();
-                bar.ADX = adxArry[index].ToString();
-                //bar.ADX_DIPositive = adxPositiveArry[index].ToString();
-                //bar.ADX_DINegative = adxNegativeArry[index].ToString();
-                bar.ATR = atrArry[index].ToString();
-                //bar.ATR_TrueHigh = atrHighArry[index].ToString();
-                //bar.ATR_TrueLow = atrLowArry[index].ToString();
+                //bar.ADX = adxArry[index].ToString();
+                bar.ADX_DIPositive = adxPositiveArry[index].ToString();
+                bar.ADX_DINegative = adxNegativeArry[index].ToString();
+                //bar.ATR = atrArry[index].ToString();
+                bar.ATR_TrueHigh = atrHighArry[index].ToString();
+                bar.ATR_TrueLow = atrLowArry[index].ToString();
                 bar.Momentum = moArry[index].ToString();
                 bar.VROC = vrocArry[index].ToString();
                 index++;
@@ -155,12 +155,12 @@ namespace AiTrader
             double lastBollLow = Convert.ToDouble(barRecords.First().BOLL_LOW);
             double lastBollHigh = Convert.ToDouble(barRecords.First().BOLL_HIGH);
             double lastCCI = Convert.ToDouble(barRecords.First().CCI);
-            //double lastATRHigh = Convert.ToDouble(barRecords.First().ATR_TrueHigh);
-            //double lastATRLow = Convert.ToDouble(barRecords.First().ATR_TrueLow);
-            double lastATR = Convert.ToDouble(barRecords.First().ATR);
-            //double lastADXPositive = Convert.ToDouble(barRecords.First().ADX_DIPositive);
-            //double lastADXNegative = Convert.ToDouble(barRecords.First().ADX_DINegative);
-            double lastADX = Convert.ToDouble(barRecords.First().ADX);
+            double lastATRHigh = Convert.ToDouble(barRecords.First().ATR_TrueHigh);
+            double lastATRLow = Convert.ToDouble(barRecords.First().ATR_TrueLow);
+            //double lastATR = Convert.ToDouble(barRecords.First().ATR);
+            double lastADXPositive = Convert.ToDouble(barRecords.First().ADX_DIPositive);
+            double lastADXNegative = Convert.ToDouble(barRecords.First().ADX_DINegative);
+            //double lastADX = Convert.ToDouble(barRecords.First().ADX);
             double lastMomentum = Convert.ToDouble(barRecords.First().Momentum);
             double lastVROC = Convert.ToDouble(barRecords.First().VROC);
 
@@ -206,35 +206,35 @@ namespace AiTrader
                 else
                     lastCCI = Convert.ToDouble(bar.CCI);
 
-                //if (string.IsNullOrEmpty(bar.ATR_TrueHigh))
-                //    bar.ATR_TrueHigh = lastATRHigh.ToString();
-                //else
-                //    lastATRHigh = Convert.ToDouble(bar.ATR_TrueHigh);
-
-                //if (string.IsNullOrEmpty(bar.ATR_TrueLow))
-                //    bar.ATR_TrueLow = lastATRLow.ToString();
-                //else
-                //    lastATRLow = Convert.ToDouble(bar.ATR_TrueLow);
-
-                if (string.IsNullOrEmpty(bar.ATR))
-                    bar.ATR = lastATR.ToString();
+                if (string.IsNullOrEmpty(bar.ATR_TrueHigh))
+                    bar.ATR_TrueHigh = lastATRHigh.ToString();
                 else
-                    lastATR = Convert.ToDouble(bar.ATR);
+                    lastATRHigh = Convert.ToDouble(bar.ATR_TrueHigh);
 
-                //if (string.IsNullOrEmpty(bar.ADX_DIPositive))
-                //    bar.ADX_DIPositive = lastADXPositive.ToString();
-                //else
-                //    lastADXPositive = Convert.ToDouble(bar.ADX_DIPositive);
-
-                //if (string.IsNullOrEmpty(bar.ADX_DINegative))
-                //    bar.ADX_DINegative = lastADXNegative.ToString();
-                //else
-                //    lastADXNegative = Convert.ToDouble(bar.ADX_DINegative);
-
-                if (string.IsNullOrEmpty(bar.ADX))
-                    bar.ADX = lastADX.ToString();
+                if (string.IsNullOrEmpty(bar.ATR_TrueLow))
+                    bar.ATR_TrueLow = lastATRLow.ToString();
                 else
-                    lastADX = Convert.ToDouble(bar.ADX);
+                    lastATRLow = Convert.ToDouble(bar.ATR_TrueLow);
+
+                //if (string.IsNullOrEmpty(bar.ATR))
+                //    bar.ATR = lastATR.ToString();
+                //else
+                //    lastATR = Convert.ToDouble(bar.ATR);
+
+                if (string.IsNullOrEmpty(bar.ADX_DIPositive))
+                    bar.ADX_DIPositive = lastADXPositive.ToString();
+                else
+                    lastADXPositive = Convert.ToDouble(bar.ADX_DIPositive);
+
+                if (string.IsNullOrEmpty(bar.ADX_DINegative))
+                    bar.ADX_DINegative = lastADXNegative.ToString();
+                else
+                    lastADXNegative = Convert.ToDouble(bar.ADX_DINegative);
+
+                //if (string.IsNullOrEmpty(bar.ADX))
+                //    bar.ADX = lastADX.ToString();
+                //else
+                //    lastADX = Convert.ToDouble(bar.ADX);
 
                 if (string.IsNullOrEmpty(bar.Momentum))
                     bar.Momentum = lastMomentum.ToString();
