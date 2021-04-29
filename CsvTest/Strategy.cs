@@ -14,17 +14,28 @@ namespace AiTrader
         public const int TickCount = 2000; // 2000 ticks per bar
         public const int barsLookAhear = 5; // look ahead 5 bars
         public const int minBarRecords = 50; //anything less will be meaningless
+        public const int slidingWindow = 200; // sliding window to create multiple variations of the 2000 ticks bar records, 200 ticks, i.e. expended the data size by 10x
     }
 
     class Strategy
     {
-        static public void buildBarRecords(IEnumerable records, List<BarRecord> barRecords)
+        static public void buildBarRecords(IEnumerable records, List<BarRecord> barRecords, int slidingNum)
         {
             int tickCount = 0;
             int volCount = 0;
+            int slidingWindowCount = Constants.slidingWindow * slidingNum; // slidingWindowCount will increment by every Constants.slidingWindow, e.g. 200 ticks
+            int slideCount = 0;
+
             BarRecord bar = new BarRecord();
             foreach (DataRecord record in records)
             {
+                // skip the tick record if the slideCount is less than slidingWindowCount
+                if (slideCount < slidingWindowCount)
+                {
+                    slideCount++;
+                    continue;
+                }
+
                 if (tickCount == 0)
                 {
                     bar.START_TIME = Convert.ToDouble(record.Time).ToString();
@@ -364,35 +375,40 @@ namespace AiTrader
                 {
                     using (var sr = new StreamReader(inFile))
                     {
-                        String outFile = "2000-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-2000-bar.csv";
-                        using (var sw = new StreamWriter(outFile))
+                        var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
+
+                        //CSVReader will now read the whole file into an enumerable
+                        IEnumerable records = reader.GetRecords<DataRecord>().ToList();
+
+                        for (int slidingNum = 0; slidingNum<10; slidingNum++)
                         {
-                            var reader = new CsvReader(sr, CultureInfo.InvariantCulture);
-                            var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
-
-                            //CSVReader will now read the whole file into an enumerable
-                            IEnumerable records = reader.GetRecords<DataRecord>().ToList();
-
                             //Covert ticks into bar records
                             List<BarRecord> barRecords = new List<BarRecord>();
-                            buildBarRecords(records, barRecords);
 
-                            if (barRecords.Count() < Constants.minBarRecords)
-                                continue;
+                            String outFile = "2000-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-2000-bar-" + slidingNum.ToString() + ".csv";
+                            using (var sw = new StreamWriter(outFile))
+                            {
+                                var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
 
-                            //Calculate indicators values
-                            buildIndicators(barRecords);
+                                buildBarRecords(records, barRecords, slidingNum);
 
-                            //pad the unkown indicators values with known values
-                            padIndicators(barRecords);
+                                if (barRecords.Count() < Constants.minBarRecords)
+                                    continue;
 
-                            //provide the lookahead bars
-                            buildLookAhead5Bars(barRecords);
+                                //Calculate indicators values
+                                buildIndicators(barRecords);
 
-                            //Write the entire contents of the CSV file into another
-                            //Do not use WriteHeader as WriteRecords will have done that already.
-                            writer.WriteRecords(barRecords);
-                            writer.Flush();
+                                //pad the unkown indicators values with known values
+                                padIndicators(barRecords);
+
+                                //provide the lookahead bars
+                                buildLookAhead5Bars(barRecords);
+
+                                //Write the entire contents of the CSV file into another
+                                //Do not use WriteHeader as WriteRecords will have done that already.
+                                writer.WriteRecords(barRecords);
+                                writer.Flush();
+                            }
                         }
                     }
                 }
