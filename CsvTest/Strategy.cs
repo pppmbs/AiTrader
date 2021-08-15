@@ -11,10 +11,10 @@ namespace AiTrader
 {
     static class Constants
     {
-        public const int TickCount = 2000; // 2000 ticks per bar
+        public const int TickCount = 500; // ticks per bar
         public const int barsLookAhear = 5; // look ahead 5 bars
         public const int minBarRecords = 50; //anything less will be meaningless
-        public const int slidingWindow = 200; // sliding window to create multiple variations of the 2000 ticks bar records, 200 ticks, i.e. expended the data size by 10x
+        public const int slidingWindow = 50; // sliding window to create multiple variations of the 2000 ticks bar records, 200 ticks, i.e. expended the data size by 10x
     }
 
     class Strategy
@@ -29,6 +29,10 @@ namespace AiTrader
             BarRecord bar = new BarRecord();
             foreach (DataRecord record in records)
             {
+                // skid all records if time is less than 0500, this is to convert UTC to CST time
+                if (Convert.ToInt32(record.Time) < 50000)
+                    continue;
+
                 // skip the tick record if the slideCount is less than slidingWindowCount
                 if (slideCount < slidingWindowCount)
                 {
@@ -38,7 +42,7 @@ namespace AiTrader
 
                 if (tickCount == 0)
                 {
-                    bar.START_TIME = Convert.ToDouble(record.Time).ToString();
+                    bar.START_TIME = (Convert.ToDouble(record.Time)-50000).ToString();
                     bar.OPEN_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.HIGH_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.LOW_PRICE = Convert.ToDouble(record.Last).ToString();
@@ -46,7 +50,7 @@ namespace AiTrader
 
                 if (tickCount == Constants.TickCount)
                 {
-                    bar.END_TIME = Convert.ToDouble(record.Time).ToString();
+                    bar.END_TIME = (Convert.ToDouble(record.Time)-50000).ToString();
                     bar.CLOSE_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.TOTAL_VOLUME = volCount.ToString();
                     tickCount = 0;
@@ -385,7 +389,7 @@ namespace AiTrader
                             //Covert ticks into bar records
                             List<BarRecord> barRecords = new List<BarRecord>();
 
-                            String outFile = "2000-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-2000-bar-" + slidingNum.ToString() + ".csv";
+                            String outFile = "500-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-500-bar-" + slidingNum.ToString() + ".csv";
                             using (var sw = new StreamWriter(outFile))
                             {
                                 var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
