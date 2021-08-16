@@ -29,8 +29,27 @@ namespace AiTrader
             BarRecord bar = new BarRecord();
             foreach (DataRecord record in records)
             {
-                // skid all records if time is less than 0500, this is to convert UTC to CST time
-                if (Convert.ToInt32(record.Time) < 50000)
+                double utcDiff;
+
+                // get the date from data record and decide if it is CST or CDT, hence decide the differential between UTC and CST/CDT
+                TimeZoneInfo cstZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+                int year = Convert.ToInt32(record.Date.Substring(0, 4));
+                int month = Convert.ToInt32(record.Date.Substring(4, 2));
+                int day = Convert.ToInt32(record.Date.Substring(6, 2));
+                DateTime myDateTime = new DateTime(year, month, day);
+                if (cstZone.IsDaylightSavingTime(myDateTime))
+                {
+                    utcDiff = 50000;
+                    //UTCDiff.SetCDT();
+                }
+                else
+                {
+                    utcDiff = 60000;
+                    //UTCDiff.SetCST();
+                }
+
+                // skid all records if time is less than utcDiff, this is to convert UTC to CST/CDT time
+                if (Convert.ToDouble(record.Time) < utcDiff)
                     continue;
 
                 // skip the tick record if the slideCount is less than slidingWindowCount
@@ -42,7 +61,7 @@ namespace AiTrader
 
                 if (tickCount == 0)
                 {
-                    bar.START_TIME = (Convert.ToDouble(record.Time)-50000).ToString();
+                    bar.START_TIME = (Convert.ToDouble(record.Time) - utcDiff).ToString();
                     bar.OPEN_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.HIGH_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.LOW_PRICE = Convert.ToDouble(record.Last).ToString();
@@ -50,7 +69,7 @@ namespace AiTrader
 
                 if (tickCount == Constants.TickCount)
                 {
-                    bar.END_TIME = (Convert.ToDouble(record.Time)-50000).ToString();
+                    bar.END_TIME = (Convert.ToDouble(record.Time)- utcDiff).ToString();
                     bar.CLOSE_PRICE = Convert.ToDouble(record.Last).ToString();
                     bar.TOTAL_VOLUME = volCount.ToString();
                     tickCount = 0;
