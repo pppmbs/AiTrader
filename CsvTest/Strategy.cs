@@ -11,10 +11,12 @@ namespace AiTrader
 {
     static class Constants
     {
-        public const int TickCount = 500; // ticks per bar
+        public const int TickCount = 2000; // ticks per bar
         public const int barsLookAhear = 5; // look ahead 5 bars
-        public const int minBarRecords = 50; //anything less will be meaningless
-        public const int slidingWindow = 50; // sliding window to create multiple variations of the 2000 ticks bar records, 200 ticks, i.e. expended the data size by 10x
+        public const int minBarRecords = 50; //anything less Some indicators, e.g. SMA50, MACD, will not have any value
+        public const int slidingWindow = TickCount / 10; // sliding window to create multiple variations of the 2000 ticks bar records, i.e. expended the data size by 10x
+        //public const int slidingWindow = 97; // largest prime <100 sliding window to create multiple variations of the 2000 ticks bar records, i.e. expended the data size by 10x
+        public const int slidingTotal = 10; // total number of sliding, i.e. # of augmented files generated
     }
 
     class Strategy
@@ -403,12 +405,12 @@ namespace AiTrader
                         //CSVReader will now read the whole file into an enumerable
                         IEnumerable records = reader.GetRecords<DataRecord>().ToList();
 
-                        for (int slidingNum = 0; slidingNum<10; slidingNum++)
+                        for (int slidingNum = 0; slidingNum < Constants.slidingTotal; slidingNum++)
                         {
                             //Covert ticks into bar records
                             List<BarRecord> barRecords = new List<BarRecord>();
 
-                            String outFile = "500-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-500-bar-" + slidingNum.ToString() + ".csv";
+                            String outFile = Constants.TickCount + "-ticks\\" + Path.GetFileNameWithoutExtension(inFile) + "-" + Constants.TickCount + "-bar-" + slidingNum.ToString() + ".csv";
                             using (var sw = new StreamWriter(outFile))
                             {
                                 var writer = new CsvWriter(sw, CultureInfo.InvariantCulture);
